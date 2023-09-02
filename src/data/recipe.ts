@@ -9,7 +9,7 @@ export enum RecipeCategory {
     "desert"="デザート・スイーツ",
 }
 
-type RecipeType = {
+export type RecipeType = {
     name: string;
     energy: number;
     category: RecipeCategory;
