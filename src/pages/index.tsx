@@ -65,7 +65,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
           <li key={key}>
             <input type="number" min="0" 
               name={key}
-              value={ingredientsCountState[key] || 0}
+              value={ingredientsCountState[key] || ""} 
               onChange={handleCountChange} 
             />
             {ingredient.name}{ingredient.emoji}
@@ -79,16 +79,6 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
 
 
 // display list of recipes which can be cooked with the ingredients
-const canCookRecipe = (recipe: RecipeType, ingredientsCount: { [key: string]: number }): boolean => {
-  for(let requirement of recipe.requires) {
-    const ingredientKey = [...ingredients.keys()].find(key => ingredients.get(key) === requirement.ingredient);
-    if (!ingredientKey || (ingredientsCount[ingredientKey] || 0) < requirement.count) {
-      return false; // ingredientが足りない場合
-    }
-  }
-  return true; // すべてのingredientが足りる場合
-}
-
 // レシピリストのコンポーネント
 const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredientsCountState: { [key: string]: number } }> = ({ selectedCategory, ingredientsCountState }) => {
   const filteredRecipes = recipes.filter(recipe => {
