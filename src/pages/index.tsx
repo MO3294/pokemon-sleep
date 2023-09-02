@@ -90,20 +90,41 @@ const canCookRecipe = (recipe: RecipeType, ingredientsCount: { [key: string]: nu
 }
 
 // レシピリストのコンポーネント
-const RecipesList = ({ ingredientsCountState, selectedCategory }: { ingredientsCountState: { [key: string]: number }, selectedCategory: RecipeCategory | null }) => {
-  const cookableRecipes = recipes.filter(recipe => 
-    (!selectedCategory || recipe.category === selectedCategory) && canCookRecipe(recipe, ingredientsCountState)
-  );
+const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredientsCountState: { [key: string]: number } }> = ({ selectedCategory, ingredientsCountState }) => {
+  const filteredRecipes = recipes.filter(recipe => {
+    if (selectedCategory && recipe.category !== selectedCategory) return false;
+
+    return recipe.requires.every(requiredIngredient => {
+      const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
+      const currentCount = ingredientsCountState[ingredientKey!] || 0;
+      return currentCount >= requiredIngredient.count;
+    });
+  })
+  .sort((a, b) => b.energy - a.energy); // これで降順にソートされます
+
 
   return (
     <div>
       <h2>Available Recipes</h2>
       <ul>
-        {cookableRecipes.map(recipe => <li key={recipe.name}>{recipe.name}</li>)}
+        {filteredRecipes.map(recipe => (
+          <li key={recipe.name}>
+            <h3>{recipe.name}</h3>
+            <p>エナジー: {recipe.energy}</p>
+            <ul>
+              {recipe.requires.map(ingredient => (
+                <li key={ingredient.ingredient.name}>
+                  {ingredient.ingredient.name}{ingredient.ingredient.emoji}: {ingredient.count}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
       </ul>
     </div>
   );
 }
+
 
 
 // page title
@@ -123,8 +144,8 @@ const IndexPage: React.FC = () => {
         setIngredientsCountState={setIngredientsCountState} 
       />
       <RecipesList 
-        ingredientsCountState={ingredientsCountState} 
         selectedCategory={selectedCategory} 
+        ingredientsCountState={ingredientsCountState} 
       />
     </div>
   );
