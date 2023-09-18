@@ -68,7 +68,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
               value={ingredientsCountState[key] || ""} 
               onChange={handleCountChange} 
             />
-            {ingredient.name}{ingredient.emoji}
+            {ingredient.emoji}{ingredient.name}
           </li>
         );
       })}
@@ -104,7 +104,7 @@ const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredien
             <ul>
               {recipe.requires.map(ingredient => (
                 <li key={ingredient.ingredient.name}>
-                  {ingredient.ingredient.name}{ingredient.ingredient.emoji}: {ingredient.count}
+                  {ingredient.ingredient.emoji}{ingredient.ingredient.name}: {ingredient.count}
                 </li>
               ))}
             </ul>
