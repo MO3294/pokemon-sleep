@@ -9,6 +9,7 @@ export type IngredientType = {
 export const ingredients = new Map<string, IngredientType>([
     ["egg", { name: "とくせんエッグ", emoji: "🐣" }],
     ["apple", { name: "とくせんリンゴ", emoji: "🍎" }],
+    ["herb", { name: "げきからハーブ", emoji: "🍁" }],
     ["sausage", { name: "マメミート", emoji: "🌭" }],
     ["milk", { name: "モーモーミルク", emoji: "🥛" }],
     ["honey", { name: "あまいミツ", emoji: "🍯" }],
@@ -19,7 +20,6 @@ export const ingredients = new Map<string, IngredientType>([
     ["soybeans", { name: "ワカクサ大豆", emoji: "🌱" }],
     ["mushroom", { name: "あじわいキノコ", emoji: "🍄" }],
     ["tail", { name: "おいしいシッポ", emoji: "🐖" }],
-    ["herb", { name: "げきからハーブ", emoji: "🍁" }],
     ["leek", { name: "ふといながねぎ", emoji: "🪴" }],
     ["potato", { name: "ほっこりポテト", emoji: "🥔" }],
 ]);
