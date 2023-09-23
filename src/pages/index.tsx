@@ -18,12 +18,10 @@ const IndexPage: React.FC = () => {
   const [ingredientsCountState, setIngredientsCountState] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    for (const [key, ingredient] of ingredients) {
-      const savedData = localStorage.getItem('pokemonSleepIngredients');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        setIngredientsCountState(parsedData);
-      }
+    const savedData = localStorage.getItem('pokemonSleepIngredients');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      setIngredientsCountState(parsedData);
     }
   }, []);  // ← 空の依存配列を指定することで、このuseEffectはコンポーネントのマウント時に一度だけ実行されます
 

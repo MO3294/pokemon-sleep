@@ -20,7 +20,7 @@ const RecipesList: React.FC<RecipesListProps> = ({
     <div>
       <h2>Available Recipes</h2>
       <ul>
-        {availableRecipes.map(recipe => (
+        {availableRecipes && availableRecipes.map(recipe => (
           <li key={recipe.name}>
             <h3>{recipe.name}</h3>
             <p>エナジー: {recipe.energy}</p>
@@ -37,7 +37,7 @@ const RecipesList: React.FC<RecipesListProps> = ({
 
       <h2>Unavailable Recipes</h2>
       <ul>
-        {unavailableRecipes.map(recipe => (
+        {unavailableRecipes && unavailableRecipes.map(recipe => (
           <li key={recipe.name}>
             <h3>{recipe.name}</h3>
             <p>エナジー: {recipe.energy}</p>
