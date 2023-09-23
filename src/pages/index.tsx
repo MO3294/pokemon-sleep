@@ -81,23 +81,32 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
 // display list of recipes which can be cooked with the ingredients
 // レシピリストのコンポーネント
 const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredientsCountState: { [key: string]: number } }> = ({ selectedCategory, ingredientsCountState }) => {
-  const filteredRecipes = recipes.filter(recipe => {
-    if (selectedCategory && recipe.category !== selectedCategory) return false;
+  const allRecipes = [...recipes].sort((a, b) => b.energy - a.energy); 
 
-    return recipe.requires.every(requiredIngredient => {
+  const [availableRecipes, unavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
+    if (selectedCategory && recipe.category !== selectedCategory) return [accAvailable, accUnavailable];
+
+    const isAvailable = recipe.requires.every(requiredIngredient => {
       const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
       const currentCount = ingredientsCountState[ingredientKey!] || 0;
       return currentCount >= requiredIngredient.count;
     });
-  })
-  .sort((a, b) => b.energy - a.energy); // これで降順にソートされます
+
+    if (isAvailable) {
+      accAvailable.push(recipe);
+    } else {
+      accUnavailable.push(recipe);
+    }
+
+    return [accAvailable, accUnavailable];
+  }, [[], []] as [RecipeType[], RecipeType[]]);
 
 
   return (
     <div>
       <h2>Available Recipes</h2>
       <ul>
-        {filteredRecipes.map(recipe => (
+      {availableRecipes.map(recipe => (
           <li key={recipe.name}>
             <h3>{recipe.name}</h3>
             <p>エナジー: {recipe.energy}</p>
@@ -107,6 +116,29 @@ const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredien
                   {ingredient.ingredient.emoji}{ingredient.ingredient.name}: {ingredient.count}
                 </li>
               ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+
+      <h2>Unavailable Recipes</h2>
+      <ul>
+        {unavailableRecipes.map(recipe => (
+          <li key={recipe.name}>
+            <h3>{recipe.name}</h3>
+            <p>エナジー: {recipe.energy}</p>
+            <ul>
+              {recipe.requires.map(ingredient => {
+                const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === ingredient.ingredient);
+                const currentCount = ingredientsCountState[ingredientKey!] || 0;
+                const isInsufficient = currentCount < ingredient.count;
+
+                return (
+                  <li key={ingredient.ingredient.name} style={isInsufficient ? { fontWeight: 'bold', color: 'red' } : {}}>
+                    {ingredient.ingredient.name}{ingredient.ingredient.emoji}: {ingredient.count}
+                  </li>
+                );
+              })}
             </ul>
           </li>
         ))}
