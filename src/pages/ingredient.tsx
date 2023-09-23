@@ -1,6 +1,7 @@
 import React from "react";
 import { RecipeCategory, RecipeType, recipes } from "../data/recipe";
 import { ingredients } from "../data/ingredient";
+import { LOCAL_STORAGE_INGREDIENTS } from ".";
 
 // display ingredients list and accept count for each
 type IngredientsCountInputProps = {
@@ -43,8 +44,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
 
   const saveData = () => {
     // 入力値をlocalStorageに保存
-    console.log(ingredientsCountState);
-    localStorage.setItem('pokemonSleepIngredients', JSON.stringify(ingredientsCountState));
+    localStorage.setItem(LOCAL_STORAGE_INGREDIENTS, JSON.stringify(ingredientsCountState));
   }
 
   return (
