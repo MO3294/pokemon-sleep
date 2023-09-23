@@ -36,13 +36,28 @@ const RecipeCategorySelect = ({ setSelectedCategory }: { setSelectedCategory: (c
 type IngredientsCountInputProps = {
   ingredientsCountState: { [key: string]: number };
   setIngredientsCountState: React.Dispatch<React.SetStateAction<{ [key: string]: number }>>;
+  unavailableRecipes: RecipeType[];
+  selectedCategory: RecipeCategory | null;
 };
 
-const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredientsCountState, setIngredientsCountState }) => {
-  // prepare ingredients list count and useState
-  const initialIngredientsCount: { [key: string]: number } = {};
-  Array.from(ingredients).forEach(([key, ingredient]) => {
-    initialIngredientsCount[key] = 0;
+const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredientsCountState, setIngredientsCountState, unavailableRecipes, selectedCategory }) => {
+  // 1. Unavailable Recipesの上位3つに含まれる材料の一覧を取得
+  const top3UnavailableRecipes = unavailableRecipes.slice(0, 3);
+  const ingredientsInTop3 = new Set<string>();
+  top3UnavailableRecipes.forEach(recipe => {
+    recipe.requires.forEach(ingredient => {
+      ingredientsInTop3.add(ingredient.ingredient.name);
+    });
+  });
+
+  // 2. 選択されたカテゴリのレシピに含まれていない材料の一覧を取得
+  const ingredientsInSelectedCategory = new Set<string>();
+  recipes.forEach(recipe => {
+    if (selectedCategory && recipe.category === selectedCategory) {
+      recipe.requires.forEach(ingredient => {
+        ingredientsInSelectedCategory.add(ingredient.ingredient.name);
+      });
+    }
   });
 
   const handleCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,58 +70,61 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
     }));
   }
 
-
   return (
     <div>
-      <h2>Ingredients</h2>
       <ul>
-      {Array.from(ingredients).map(([key, ingredient]) => {
-        return (
-          <li key={key}>
-            <input type="number" min="0" 
-              name={key}
-              value={ingredientsCountState[key] || ""} 
-              onChange={handleCountChange} 
-            />
-            {ingredient.emoji}{ingredient.name}
-          </li>
-        );
-      })}
+        {Array.from(ingredients).map(([key, ingredient]) => {
+          const isInTop3 = ingredientsInTop3.has(ingredient.name);
+          const isInSelectedCategory = ingredientsInSelectedCategory.has(ingredient.name);
+          let color = 'black'; // default color
+          if (isInTop3) {
+            color = 'red';
+          } else if (!isInSelectedCategory) {
+            color = 'blue';
+          }
+
+          return (
+            <li key={key} style={{ color: color }}>
+              <label>
+                <input
+                  type="number"
+                  name={key}
+                  value={ingredientsCountState[key] || ""}
+                  onChange={handleCountChange}
+                />
+                {ingredient.emoji}{ingredient.name}
+              </label>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
-}
+};
+
 
 
 // display list of recipes which can be cooked with the ingredients
 // レシピリストのコンポーネント
-const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredientsCountState: { [key: string]: number } }> = ({ selectedCategory, ingredientsCountState }) => {
-  const allRecipes = [...recipes].sort((a, b) => b.energy - a.energy); 
+interface RecipesListProps {
+  selectedCategory: RecipeCategory | null;
+  ingredientsCountState: { [key: string]: number };
+  availableRecipes: RecipeType[];
+  unavailableRecipes: RecipeType[];
+}
 
-  const [availableRecipes, unavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
-    if (selectedCategory && recipe.category !== selectedCategory) return [accAvailable, accUnavailable];
-
-    const isAvailable = recipe.requires.every(requiredIngredient => {
-      const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
-      const currentCount = ingredientsCountState[ingredientKey!] || 0;
-      return currentCount >= requiredIngredient.count;
-    });
-
-    if (isAvailable) {
-      accAvailable.push(recipe);
-    } else {
-      accUnavailable.push(recipe);
-    }
-
-    return [accAvailable, accUnavailable];
-  }, [[], []] as [RecipeType[], RecipeType[]]);
-
-
+const RecipesList: React.FC<RecipesListProps> = ({ 
+  selectedCategory, 
+  ingredientsCountState,
+  availableRecipes,
+  unavailableRecipes 
+}) => {
+  
   return (
     <div>
       <h2>Available Recipes</h2>
       <ul>
-      {availableRecipes.map(recipe => (
+        {availableRecipes.map(recipe => (
           <li key={recipe.name}>
             <h3>{recipe.name}</h3>
             <p>エナジー: {recipe.energy}</p>
@@ -151,6 +169,7 @@ const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredien
 
 
 
+
 // page title
 const pageTitle = "Cooking Recipes";
 
@@ -159,6 +178,25 @@ const IndexPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | null>(null);
   const [ingredientsCountState, setIngredientsCountState] = useState<{ [key: string]: number }>({});
 
+  const allRecipes = [...recipes].sort((a, b) => b.energy - a.energy); 
+  const [availableRecipes, unavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
+    if (selectedCategory && recipe.category !== selectedCategory) return [accAvailable, accUnavailable];
+
+    const isAvailable = recipe.requires.every(requiredIngredient => {
+      const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
+      const currentCount = ingredientsCountState[ingredientKey!] || 0;
+      return currentCount >= requiredIngredient.count;
+    });
+
+    if (isAvailable) {
+      accAvailable.push(recipe);
+    } else {
+      accUnavailable.push(recipe);
+    }
+
+    return [accAvailable, accUnavailable];
+  }, [[], []] as [RecipeType[], RecipeType[]]);
+
   return (
     <div>
       <h1>{pageTitle}</h1>
@@ -166,10 +204,14 @@ const IndexPage: React.FC = () => {
       <IngredientsCountInput 
         ingredientsCountState={ingredientsCountState} 
         setIngredientsCountState={setIngredientsCountState} 
+        unavailableRecipes={unavailableRecipes}
+        selectedCategory={selectedCategory}
       />
       <RecipesList 
         selectedCategory={selectedCategory} 
         ingredientsCountState={ingredientsCountState} 
+        availableRecipes={availableRecipes}
+        unavailableRecipes={unavailableRecipes}
       />
     </div>
   );
