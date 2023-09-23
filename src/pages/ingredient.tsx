@@ -12,7 +12,7 @@ type IngredientsCountInputProps = {
 
 const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredientsCountState, setIngredientsCountState, unavailableRecipes, selectedCategory }) => {
   // 1. Unavailable Recipesの上位3つに含まれる材料の一覧を取得
-  const top3UnavailableRecipes = unavailableRecipes.slice(0, 3);
+  const top3UnavailableRecipes = unavailableRecipes?.slice(0, 3) ?? [];
   const ingredientsInTop3 = new Set<string>();
   top3UnavailableRecipes.forEach(recipe => {
     recipe.requires.forEach(ingredient => {
@@ -67,7 +67,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
                   type="number"
                   pattern="\d*"
                   name={key}
-                  value={ingredientsCountState[key] || ""}
+                  value={ingredientsCountState ? ingredientsCountState[key] : ""}
                   onChange={handleCountChange}
                   onBlur={saveData}
                 />
