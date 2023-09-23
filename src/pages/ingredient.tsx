@@ -59,6 +59,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
               <label>
                 <input
                   type="number"
+                  pattern="\d*"
                   name={key}
                   value={ingredientsCountState[key] || ""}
                   onChange={handleCountChange}
