@@ -53,8 +53,9 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
   // 2. 選択されたカテゴリのレシピに含まれていない材料の一覧を取得
   const ingredientsInSelectedCategory = new Set<string>();
   recipes.forEach(recipe => {
-    if (selectedCategory && recipe.category === selectedCategory) {
-      recipe.requires.forEach(ingredient => {
+    // カテゴリが選択されていない、または、選択されたカテゴリがレシピのカテゴリと一致する場合
+    if (!selectedCategory || recipe.category === selectedCategory) {
+        recipe.requires.forEach(ingredient => {
         ingredientsInSelectedCategory.add(ingredient.ingredient.name);
       });
     }
@@ -107,14 +108,12 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
 // display list of recipes which can be cooked with the ingredients
 // レシピリストのコンポーネント
 interface RecipesListProps {
-  selectedCategory: RecipeCategory | null;
   ingredientsCountState: { [key: string]: number };
   availableRecipes: RecipeType[];
   unavailableRecipes: RecipeType[];
 }
 
 const RecipesList: React.FC<RecipesListProps> = ({ 
-  selectedCategory, 
   ingredientsCountState,
   availableRecipes,
   unavailableRecipes 
@@ -208,7 +207,6 @@ const IndexPage: React.FC = () => {
         selectedCategory={selectedCategory}
       />
       <RecipesList 
-        selectedCategory={selectedCategory} 
         ingredientsCountState={ingredientsCountState} 
         availableRecipes={availableRecipes}
         unavailableRecipes={unavailableRecipes}
