@@ -12,16 +12,26 @@ import RecipesList from "./recipe";
 // page title
 const pageTitle = "Cooking Recipes";
 
+// local storage
+export const LOCAL_STORAGE_INGREDIENTS = "pokemonSleepIngredients";
+export const LOCAL_STORAGE_CATEGORY = "pokemonSleepCategory";
+
 // create index page
 const IndexPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | null>(null);
   const [ingredientsCountState, setIngredientsCountState] = useState<{ [key: string]: number }>({});
 
+  // load from localStorage
   useEffect(() => {
-    const savedData = localStorage.getItem('pokemonSleepIngredients');
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      setIngredientsCountState(parsedData);
+    const savedIngredients = localStorage.getItem(LOCAL_STORAGE_INGREDIENTS);
+    if (savedIngredients) {
+      const parsedIngredients = JSON.parse(savedIngredients);
+      setIngredientsCountState(parsedIngredients);
+    }
+
+    const savedCategory = localStorage.getItem(LOCAL_STORAGE_CATEGORY);
+    if (savedCategory && savedCategory !== "") {
+      setSelectedCategory(RecipeCategory[savedCategory as keyof typeof RecipeCategory]);
     }
   }, []);  // ← 空の依存配列を指定することで、このuseEffectはコンポーネントのマウント時に一度だけ実行されます
 
@@ -47,7 +57,10 @@ const IndexPage: React.FC = () => {
   return (
     <div>
       <h1>{pageTitle}</h1>
-      <RecipeCategorySelect setSelectedCategory={setSelectedCategory} />
+      <RecipeCategorySelect 
+        setSelectedCategory={setSelectedCategory} 
+        selectedCategory={selectedCategory}
+      />
       <IngredientsCountInput 
         ingredientsCountState={ingredientsCountState} 
         setIngredientsCountState={setIngredientsCountState} 
