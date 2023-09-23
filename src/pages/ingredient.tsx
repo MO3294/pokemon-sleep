@@ -41,6 +41,12 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
     }));
   }
 
+  const saveData = () => {
+    // 入力値をlocalStorageに保存
+    console.log(ingredientsCountState);
+    localStorage.setItem('pokemonSleepIngredients', JSON.stringify(ingredientsCountState));
+  }
+
   return (
     <div>
       <ul>
@@ -63,6 +69,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
                   name={key}
                   value={ingredientsCountState[key] || ""}
                   onChange={handleCountChange}
+                  onBlur={saveData}
                 />
                 {ingredient.emoji}{ingredient.name}
               </label>

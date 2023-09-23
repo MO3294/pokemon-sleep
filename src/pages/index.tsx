@@ -1,5 +1,5 @@
 // accept ingredients count input and display a list of recipes which can be cooked with that ingredients
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // import ingredients and recipes from data folder
 import { ingredients } from "../data/ingredient";
@@ -16,6 +16,16 @@ const pageTitle = "Cooking Recipes";
 const IndexPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | null>(null);
   const [ingredientsCountState, setIngredientsCountState] = useState<{ [key: string]: number }>({});
+
+  useEffect(() => {
+    for (const [key, ingredient] of ingredients) {
+      const savedData = localStorage.getItem('pokemonSleepIngredients');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setIngredientsCountState(parsedData);
+      }
+    }
+  }, []);  // ← 空の依存配列を指定することで、このuseEffectはコンポーネントのマウント時に一度だけ実行されます
 
   const allRecipes = [...recipes].sort((a, b) => b.energy - a.energy); 
   const [availableRecipes, unavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
