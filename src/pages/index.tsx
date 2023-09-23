@@ -131,11 +131,13 @@ const RecipesList: React.FC<{ selectedCategory: RecipeCategory | null, ingredien
               {recipe.requires.map(ingredient => {
                 const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === ingredient.ingredient);
                 const currentCount = ingredientsCountState[ingredientKey!] || 0;
+                const shortage = ingredient.count - currentCount;
                 const isInsufficient = currentCount < ingredient.count;
 
                 return (
                   <li key={ingredient.ingredient.name} style={isInsufficient ? { fontWeight: 'bold', color: 'red' } : {}}>
-                    {ingredient.ingredient.name}{ingredient.ingredient.emoji}: {ingredient.count}
+                    {ingredient.ingredient.name}{ingredient.ingredient.emoji}: {ingredient.count} 
+                    {isInsufficient ? ` (-${shortage})` : ''}
                   </li>
                 );
               })}
