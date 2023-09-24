@@ -67,7 +67,7 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
                   type="number"
                   pattern="\d*"
                   name={key}
-                  value={ingredientsCountState ? ingredientsCountState[key] : ""}
+                  value={ingredientsCountState?.[key] || ""}
                   onChange={handleCountChange}
                   onBlur={saveData}
                 />
