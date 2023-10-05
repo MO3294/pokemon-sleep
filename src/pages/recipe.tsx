@@ -1,17 +1,18 @@
 import React from "react";
 import { RecipeType } from "../data/recipe";
 import { ingredients } from "../data/ingredient";
+import { IngredientInputType } from "./ingredient";
 
 // display list of recipes which can be cooked with the ingredients
 // レシピリストのコンポーネント
 interface RecipesListProps {
-  ingredientsCountState: { [key: string]: number };
+  ingredientsState: { [key: string]: IngredientInputType };
   availableRecipes: RecipeType[];
   unavailableRecipes: RecipeType[];
 }
 
 const RecipesList: React.FC<RecipesListProps> = ({ 
-  ingredientsCountState,
+  ingredientsState: ingredientsCountState,
   availableRecipes,
   unavailableRecipes 
 }) => {
@@ -44,7 +45,7 @@ const RecipesList: React.FC<RecipesListProps> = ({
             <ul>
               {recipe.requires.map(ingredient => {
                 const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === ingredient.ingredient);
-                const currentCount = ingredientsCountState[ingredientKey!] || 0;
+                const currentCount = ingredientsCountState[ingredientKey!]?.count || 0;
                 const shortage = ingredient.count - currentCount;
                 const isInsufficient = currentCount < ingredient.count;
 

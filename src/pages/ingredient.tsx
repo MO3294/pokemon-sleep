@@ -1,17 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { RecipeCategory, RecipeType, recipes } from "../data/recipe";
 import { ingredients } from "../data/ingredient";
 import { LOCAL_STORAGE_INGREDIENTS } from ".";
 
+export type IngredientInputType = {
+  count: number;
+  isReleased: boolean;
+};
+
+
 // display ingredients list and accept count for each
-type IngredientsCountInputProps = {
-  ingredientsCountState: { [key: string]: number };
-  setIngredientsCountState: React.Dispatch<React.SetStateAction<{ [key: string]: number }>>;
+type IngredientsInputProps = {
+  ingredientsState: { [key: string]: IngredientInputType };
+  setIngredientsState: React.Dispatch<React.SetStateAction<{ [key: string]: IngredientInputType }>>;
   unavailableRecipes: RecipeType[];
   selectedCategory: RecipeCategory | null;
 };
 
-const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredientsCountState, setIngredientsCountState, unavailableRecipes, selectedCategory }) => {
+
+
+const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: ingredientsState, setIngredientsState: setIngredientsState, unavailableRecipes, selectedCategory }) => {
   // 1. Unavailable Recipesの上位3つに含まれる材料の一覧を取得
   const top3UnavailableRecipes = unavailableRecipes?.slice(0, 3) ?? [];
   const ingredientsInTop3 = new Set<string>();
@@ -36,15 +44,27 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
     const ingredientKey = event.target.name;
     const ingredientCount = Number(event.target.value);
     
-    setIngredientsCountState((prevState: { [key: string]: number }) => ({
-      ...prevState,
-      [ingredientKey]: ingredientCount
-    }));
+    const updatedState = {
+      ...ingredientsState,
+      [ingredientKey]: {count: ingredientCount, isReleased: ingredientsState[ingredientKey]?.isReleased ?? true}
+    };
+  
+    setIngredientsState(updatedState);
+    saveData(updatedState);
   }
 
-  const saveData = () => {
-    // 入力値をlocalStorageに保存
-    localStorage.setItem(LOCAL_STORAGE_INGREDIENTS, JSON.stringify(ingredientsCountState));
+  const toggleRelease = (key: string) => {
+    const updatedState = {
+      ...ingredientsState,
+      [key]: {count: ingredientsState[key]?.count ?? 0, isReleased: !ingredientsState[key]?.isReleased}
+    };
+  
+    setIngredientsState(updatedState);
+    saveData(updatedState);
+  };
+
+  const saveData = (dataToSave: { [key: string]: IngredientInputType }) => {
+    localStorage.setItem(LOCAL_STORAGE_INGREDIENTS, JSON.stringify(dataToSave));
   }
 
   return (
@@ -67,12 +87,14 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
                   type="number"
                   pattern="\d*"
                   name={key}
-                  value={ingredientsCountState?.[key] || ""}
+                  value={ingredientsState[key]?.count || ""}
                   onChange={handleCountChange}
-                  onBlur={saveData}
                 />
                 {ingredient.emoji}{ingredient.name}
               </label>
+              <button 
+                onClick={() => {toggleRelease(key)}}>{ingredientsState[key]?.isReleased ? 'Release' : 'Lock'}
+              </button>
             </li>
           );
         })}
@@ -81,4 +103,4 @@ const IngredientsCountInput: React.FC<IngredientsCountInputProps> = ({ ingredien
   );
 };
 
-export default IngredientsCountInput;
+export default IngredientsInput;
