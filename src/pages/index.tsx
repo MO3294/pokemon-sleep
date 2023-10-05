@@ -25,11 +25,25 @@ const IndexPage: React.FC = () => {
   
   // load from localStorage
   useEffect(() => {
+    // すべての食材に対してデフォルト値を設定
+    const defaultIngredientsState: { [key: string]: IngredientInputType } = {};
+    Array.from(ingredients).forEach(([key, ingredient]) => {
+      defaultIngredientsState[key] = {
+        count: 0,
+        isReleased: true
+      };
+    });
+
     const savedIngredients = localStorage.getItem(LOCAL_STORAGE_INGREDIENTS);
     if (savedIngredients) {
       const parsedIngredientCounts = JSON.parse(savedIngredients);
-      setIngredientsState(parsedIngredientCounts);
+      // デフォルト値とlocalStorageの値を組み合わせ
+      const combinedState = { ...defaultIngredientsState, ...parsedIngredientCounts };
+      setIngredientsState(combinedState);
+    } else {
+      setIngredientsState(defaultIngredientsState);
     }
+
 
     const savedCategory = localStorage.getItem(LOCAL_STORAGE_CATEGORY);
     if (savedCategory && savedCategory !== "") {

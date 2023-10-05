@@ -33,7 +33,9 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
 
   // 2. 選択されたカテゴリのレシピに含まれていない材料の一覧を取得
   const ingredientsInSelectedCategory = new Set<string>();
-  const allRecipes = [...[...availableRecipes, ...unavailableRecipes]];
+  const allRecipes: RecipeType[] = [];
+  if (availableRecipes) allRecipes.push(...availableRecipes);
+  if (unavailableRecipes) allRecipes.push(...unavailableRecipes);
   allRecipes.forEach(recipe => {
     // カテゴリが選択されていない、または、選択されたカテゴリがレシピのカテゴリと一致する場合
     if (!selectedCategory || recipe.category === selectedCategory) {
@@ -79,7 +81,7 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
           let cardColorClass = '';
           if (isInTop3) {
               cardColorClass = 'red';
-          } else if (!ingredientsState[key]?.isReleased) {
+          } else if (!ingredientsState || !ingredientsState[key]?.isReleased) {
               cardColorClass = 'gray';
           } else if (!isInSelectedCategory) {
               cardColorClass = 'blue';
@@ -92,15 +94,15 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
                   type="number"
                   pattern="\d*"
                   name={key}
-                  value={ingredientsState[key]?.count || ""}
+                  value={!ingredientsState || ingredientsState[key]?.count || ""}
                   onChange={handleCountChange}
                 />
                 <span>{ingredient.name}</span>
                 <button 
                   onClick={() => {toggleRelease(key)}}
-                  className={`release-button ${ingredientsState[key]?.isReleased ? 'release' : 'lock'}`}
+                  className={`release-button ${!ingredientsState || ingredientsState[key]?.isReleased ? 'release' : 'lock'}`}
                 >
-                  {ingredientsState[key]?.isReleased ? 'Release' : 'Lock'}
+                  {!ingredientsState || ingredientsState[key]?.isReleased ? 'Release' : 'Lock'}
                 </button>
             </li>
           );
