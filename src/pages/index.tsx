@@ -78,6 +78,7 @@ const IndexPage: React.FC = () => {
       <IngredientsInput 
         ingredientsState={ingredientsState} 
         setIngredientsState={setIngredientsState} 
+        availableRecipes={availableRecipes}
         unavailableRecipes={unavailableRecipes}
         selectedCategory={selectedCategory}
       />

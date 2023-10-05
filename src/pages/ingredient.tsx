@@ -13,13 +13,14 @@ export type IngredientInputType = {
 type IngredientsInputProps = {
   ingredientsState: { [key: string]: IngredientInputType };
   setIngredientsState: React.Dispatch<React.SetStateAction<{ [key: string]: IngredientInputType }>>;
+  availableRecipes: RecipeType[];
   unavailableRecipes: RecipeType[];
   selectedCategory: RecipeCategory | null;
 };
 
 
 
-const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: ingredientsState, setIngredientsState: setIngredientsState, unavailableRecipes, selectedCategory }) => {
+const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: ingredientsState, setIngredientsState: setIngredientsState, availableRecipes, unavailableRecipes, selectedCategory }) => {
   // 1. Unavailable Recipesの上位3つに含まれる材料の一覧を取得
   const top3UnavailableRecipes = unavailableRecipes?.slice(0, 3) ?? [];
   const ingredientsInTop3 = new Set<string>();
@@ -31,7 +32,8 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
 
   // 2. 選択されたカテゴリのレシピに含まれていない材料の一覧を取得
   const ingredientsInSelectedCategory = new Set<string>();
-  recipes.forEach(recipe => {
+  const allRecipes = [...[...availableRecipes, ...unavailableRecipes]];
+  allRecipes.forEach(recipe => {
     // カテゴリが選択されていない、または、選択されたカテゴリがレシピのカテゴリと一致する場合
     if (!selectedCategory || recipe.category === selectedCategory) {
         recipe.requires.forEach(ingredient => {
@@ -76,6 +78,8 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
           let color = 'black'; // default color
           if (isInTop3) {
             color = 'red';
+          } else if (!ingredientsState[key]?.isReleased) {
+            color = 'gray';
           } else if (!isInSelectedCategory) {
             color = 'blue';
           }
