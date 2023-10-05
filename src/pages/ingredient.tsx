@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { RecipeCategory, RecipeType, recipes } from "../data/recipe";
 import { ingredients } from "../data/ingredient";
 import { LOCAL_STORAGE_INGREDIENTS } from ".";
+import '../styles/ingredient.css';
 
 export type IngredientInputType = {
   count: number;
@@ -75,18 +76,18 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
         {Array.from(ingredients).map(([key, ingredient]) => {
           const isInTop3 = ingredientsInTop3.has(ingredient.name);
           const isInSelectedCategory = ingredientsInSelectedCategory.has(ingredient.name);
-          let color = 'black'; // default color
+          let cardColorClass = '';
           if (isInTop3) {
-            color = 'red';
+              cardColorClass = 'red';
           } else if (!ingredientsState[key]?.isReleased) {
-            color = 'gray';
+              cardColorClass = 'gray';
           } else if (!isInSelectedCategory) {
-            color = 'blue';
+              cardColorClass = 'blue';
           }
 
           return (
-            <li key={key} style={{ color: color }}>
-              <label>
+            <li key={key} className={`ingredient-card ${cardColorClass}`}>
+            <span className="ingredient-emoji">{ingredient.emoji}</span>
                 <input
                   type="number"
                   pattern="\d*"
@@ -94,11 +95,13 @@ const IngredientsInput: React.FC<IngredientsInputProps> = ({ ingredientsState: i
                   value={ingredientsState[key]?.count || ""}
                   onChange={handleCountChange}
                 />
-                {ingredient.emoji}{ingredient.name}
-              </label>
-              <button 
-                onClick={() => {toggleRelease(key)}}>{ingredientsState[key]?.isReleased ? 'Release' : 'Lock'}
-              </button>
+                <span>{ingredient.name}</span>
+                <button 
+                  onClick={() => {toggleRelease(key)}}
+                  className={`release-button ${ingredientsState[key]?.isReleased ? 'release' : 'lock'}`}
+                >
+                  {ingredientsState[key]?.isReleased ? 'Release' : 'Lock'}
+                </button>
             </li>
           );
         })}

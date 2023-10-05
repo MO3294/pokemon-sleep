@@ -1,0 +1,86 @@
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    background: #ffffff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input[type="number"] {
+    width: 60px;
+    height: 30px; /* タッチ操作に適したサイズ */
+    margin-right: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 80px;
+    height: 30px; /* タッチ操作に適したサイズ */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.ingredient-card {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ingredient-card.red {
+    background-color: #ffe6e6;  /* 薄い赤 */
+}
+
+.ingredient-card.blue {
+    background-color: #e6e6ff;  /* 薄い青 */
+}
+
+.ingredient-card.gray {
+    background-color: #f0f0f0;  /* 薄い灰色 */
+}
+
+.ingredient-emoji {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.release-button {
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.release-button.release {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.release-button.lock {
+    background-color: #FF5722;
+    color: white;
+}
