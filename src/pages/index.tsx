@@ -6,53 +6,67 @@ import { ingredients } from "../data/ingredient";
 import { RecipeType, recipes } from "../data/recipe";
 import { RecipeCategory } from "../data/recipe";
 import RecipeCategorySelect from "./category";
-import IngredientsCountInput from "./ingredient";
+import IngredientsInput, { IngredientInputType } from "./ingredient";
 import RecipesList from "./recipe";
 
 // page title
 const pageTitle = "Cooking Recipes";
 
 // local storage
-export const LOCAL_STORAGE_INGREDIENTS = "pokemonSleepIngredients";
-export const LOCAL_STORAGE_CATEGORY = "pokemonSleepCategory";
+export const LOCAL_STORAGE_INGREDIENTS = "pokemonSleep:Ingredients";
+export const LOCAL_STORAGE_CATEGORY = "pokemonSleep:Category";
 
 // create index page
 const IndexPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | null>(null);
-  const [ingredientsCountState, setIngredientsCountState] = useState<{ [key: string]: number }>({});
-
+  const [ingredientsState, setIngredientsState] = useState<{ [key: string]: IngredientInputType }>({});
+  const [availableRecipes, setAvailableRecipes] = useState<RecipeType[]>([]);
+  const [unavailableRecipes, setUnavailableRecipes] = useState<RecipeType[]>([]);
+  
   // load from localStorage
   useEffect(() => {
     const savedIngredients = localStorage.getItem(LOCAL_STORAGE_INGREDIENTS);
     if (savedIngredients) {
-      const parsedIngredients = JSON.parse(savedIngredients);
-      setIngredientsCountState(parsedIngredients);
+      const parsedIngredientCounts = JSON.parse(savedIngredients);
+      setIngredientsState(parsedIngredientCounts);
     }
 
     const savedCategory = localStorage.getItem(LOCAL_STORAGE_CATEGORY);
     if (savedCategory && savedCategory !== "") {
       setSelectedCategory(RecipeCategory[savedCategory as keyof typeof RecipeCategory]);
     }
+
   }, []);  // ← 空の依存配列を指定することで、このuseEffectはコンポーネントのマウント時に一度だけ実行されます
 
-  const allRecipes = [...recipes].sort((a, b) => b.energy - a.energy); 
-  const [availableRecipes, unavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
-    if (selectedCategory && recipe.category !== selectedCategory) return [accAvailable, accUnavailable];
+  useEffect(() => {
+    const allRecipes = [...recipes]
+    .filter((recipe) => recipe.requires.every((requiredIngredient) => {
+      const ingredientKey = Object.keys(ingredientsState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
+      return ingredientsState[ingredientKey!]?.isReleased
+    }))
+    .sort((a, b) => b.energy - a.energy); 
 
-    const isAvailable = recipe.requires.every(requiredIngredient => {
-      const ingredientKey = Object.keys(ingredientsCountState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
-      const currentCount = ingredientsCountState[ingredientKey!] || 0;
-      return currentCount >= requiredIngredient.count;
-    });
+    const [newAvailableRecipes, newUnavailableRecipes] = allRecipes.reduce(([accAvailable, accUnavailable], recipe) => {
+      if (selectedCategory && recipe.category !== selectedCategory) return [accAvailable, accUnavailable];
 
-    if (isAvailable) {
-      accAvailable.push(recipe);
-    } else {
-      accUnavailable.push(recipe);
-    }
+      const isAvailable = recipe.requires.every(requiredIngredient => {
+        const ingredientKey = Object.keys(ingredientsState).find(key => ingredients.get(key) === requiredIngredient.ingredient);
+        const currentCount = ingredientsState[ingredientKey!]?.count || 0;
+        return currentCount >= requiredIngredient.count;
+      });
 
-    return [accAvailable, accUnavailable];
-  }, [[], []] as [RecipeType[], RecipeType[]]);
+      if (isAvailable) {
+        accAvailable.push(recipe);
+      } else {
+        accUnavailable.push(recipe);
+      }
+
+      return [accAvailable, accUnavailable];
+    }, [[], []] as [RecipeType[], RecipeType[]]);
+
+    setAvailableRecipes(newAvailableRecipes);
+    setUnavailableRecipes(newUnavailableRecipes);
+  }, [ingredientsState, selectedCategory]);  // ← ingredientsStateとselectedCategoryが変更されたときに実行されます
 
   return (
     <div>
@@ -61,14 +75,15 @@ const IndexPage: React.FC = () => {
         setSelectedCategory={setSelectedCategory} 
         selectedCategory={selectedCategory}
       />
-      <IngredientsCountInput 
-        ingredientsCountState={ingredientsCountState} 
-        setIngredientsCountState={setIngredientsCountState} 
+      <IngredientsInput 
+        ingredientsState={ingredientsState} 
+        setIngredientsState={setIngredientsState} 
+        availableRecipes={availableRecipes}
         unavailableRecipes={unavailableRecipes}
         selectedCategory={selectedCategory}
       />
       <RecipesList 
-        ingredientsCountState={ingredientsCountState} 
+        ingredientsState={ingredientsState} 
         availableRecipes={availableRecipes}
         unavailableRecipes={unavailableRecipes}
       />
